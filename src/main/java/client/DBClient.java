@@ -3,7 +3,6 @@ package client;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import common.DBEntry;
 import common.DBOperationResponse;
 import common.DBQuery;
@@ -24,7 +23,6 @@ public class DBClient {
         Socket socket = new Socket(this.host, this.port);
 
         Kryo kryo = new Kryo();
-        kryo.register(DBEntry.class, new JavaSerializer());
         Output output = new Output(socket.getOutputStream());
 
         kryo.writeClassAndObject(output, new DBEntry(key,value));
@@ -42,7 +40,6 @@ public class DBClient {
         Socket socket = new Socket(this.host, this.port);
 
         Kryo kryo = new Kryo();
-        kryo.register(DBEntry.class, new JavaSerializer());
         Output output = new Output(socket.getOutputStream());
 
         kryo.writeClassAndObject(output, new DBQuery(key));

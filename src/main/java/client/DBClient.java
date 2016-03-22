@@ -20,16 +20,14 @@ public class DBClient {
     }
 
     public void put(String key, String value) throws IOException, ClassNotFoundException {
-        Socket socket = new Socket(this.host,this.port);
-//        ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-//        objectOutputStream.writeObject(new DBEntry(key,value));
-//        objectOutputStream.flush();
+        Socket socket = new Socket(this.host, this.port);
+
         Kryo kryo = new Kryo();
-        kryo.register(DBEntry.class,new JavaSerializer());
+        kryo.register(DBEntry.class, new JavaSerializer());
         Output output = new Output(socket.getOutputStream());
-            kryo.writeClassAndObject(output,new DBEntry(key,value));
 
-
+        kryo.writeClassAndObject(output, new DBEntry(key, value));
+        kryo.writeClassAndObject(output, "#");
         output.flush();
 
         Input input = new Input(socket.getInputStream());
@@ -37,18 +35,10 @@ public class DBClient {
         System.out.printf("D##### " + dbOperationResponse.getResponse());
 
         socket.close();
-//
-//
-////        objectOutputStream.close();
-//
-//        ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-//        DBOperationResponse response = (DBOperationResponse) objectInputStream.readObject();
-//        System.out.println(response.getResponse());
-
     }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         DBClient client = new DBClient("localhost", 9999);
-        client.put("ac","de");
+        client.put("ac","GGG");
     }
 }

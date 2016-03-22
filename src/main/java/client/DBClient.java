@@ -20,47 +20,38 @@ public class DBClient {
     }
 
     public void put(String key, String value) throws IOException, ClassNotFoundException, InterruptedException {
-        Socket socket = new Socket(this.host, this.port);
-
-        Kryo kryo = new Kryo();
-        Output output = new Output(socket.getOutputStream());
-
-        kryo.writeClassAndObject(output, new DBEntry(key,value));
-        kryo.writeClassAndObject(output, "#");
-        output.flush();
-
-        Input input = new Input(socket.getInputStream());
-        DBOperationResponse dbOperationResponse = kryo.readObject(input, DBOperationResponse.class);
-        System.out.printf("D##### " + dbOperationResponse.getResponse());
-
-        socket.close();
+        doNetworkRpc(new DBEntry(key, value));
     }
 
   public String get(String key) throws IOException, ClassNotFoundException, InterruptedException {
-        Socket socket = new Socket(this.host, this.port);
 
-        Kryo kryo = new Kryo();
-        Output output = new Output(socket.getOutputStream());
-
-        kryo.writeClassAndObject(output, new DBQuery(key));
-        kryo.writeClassAndObject(output, "#");
-        output.flush();
-
-        Input input = new Input(socket.getInputStream());
-        DBOperationResponse dbOperationResponse = kryo.readObject(input, DBOperationResponse.class);
-        System.out.printf("D##### " + dbOperationResponse.getResponse());
-
-        socket.close();
+      DBOperationResponse dbOperationResponse = doNetworkRpc(new DBQuery(key));
 
       return  dbOperationResponse.getResponse();
     }
 
+    private DBOperationResponse doNetworkRpc(Object obj) throws IOException {
+        Socket socket = new Socket(this.host, this.port);
+        Kryo kryo = new Kryo();
+        Output output = new Output(socket.getOutputStream());
+
+        kryo.writeClassAndObject(output, obj);
+        kryo.writeClassAndObject(output, "#");
+        output.flush();
+
+        Input input = new Input(socket.getInputStream());
+        DBOperationResponse dbOperationResponse = kryo.readObject(input, DBOperationResponse.class);
+
+        socket.close();
+        return dbOperationResponse;
+    }
+
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         DBClient client = new DBClient("localhost", 9999);
-        client.put("ac","GGG");
-        client.put("ac","as");
-        client.put("ac","GsGG");
-        client.put("de","GGG");
+        client.put("ac","A");
+        client.put("ac","B");
+        client.put("ac","C");
+        client.put("de","D");
         System.out.println(client.get("ac"));
     }
 }

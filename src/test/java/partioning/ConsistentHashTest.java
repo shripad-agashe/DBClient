@@ -3,24 +3,27 @@ package partioning;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class ConsistentHashTest {
 
     @Test
     public void testAddForE() throws Exception {
 
-        ConsistentHash<String> consistentHash = new ConsistentHash<String>(new HashFunction(),3,  Arrays.asList("A", "B", "C", "D"));
-        String e = consistentHash.get("E");
-        System.out.println(e);
+        List<Token> strings = Arrays.asList(new Token("1"));
+        ConsistentHash<Token> consistentHash = new ConsistentHash<Token>(new HashFunction(), strings);
+        Token e = consistentHash.get("E");
+        System.out.println(e.getPosition());
 
     }
 
     @Test
     public void testAddForEFor30Replica() throws Exception {
 
-        ConsistentHash<String> consistentHash = new ConsistentHash<String>(new HashFunction(),9,  Arrays.asList("A", "B", "C", "D"));
-        String e = consistentHash.get("E");
-        System.out.println(e);
+        List<Token> strings = Arrays.asList(new Token("1"));
+        ConsistentHash<Token> consistentHash = new ConsistentHash<Token>(new HashFunction(), strings);
+        Token e = consistentHash.get("E");
+        System.out.println(e.getPosition());
 
     }
 }

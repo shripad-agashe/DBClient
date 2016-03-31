@@ -9,32 +9,26 @@ import java.util.TreeMap;
 public class ConsistentHash<T> {
 
     private final HashFunction hashFunction;
-    private final int numberOfReplicas;
     private final SortedMap<Integer, T> circle =
             new TreeMap<Integer, T>();
 
     public ConsistentHash(HashFunction hashFunction,
-                          int numberOfReplicas, Collection<T> nodes) {
+                          Collection<T> tokens) {
 
         this.hashFunction = hashFunction;
-        this.numberOfReplicas = numberOfReplicas;
 
-        for (T node : nodes) {
-            add(node);
+        for (T token : tokens) {
+            add(token);
         }
     }
 
-    public void add(T node) {
-        for (int i = 0; i < numberOfReplicas; i++) {
-            circle.put(hashFunction.hash(node.toString() + i),
-                    node);
-        }
+    public void add(T token) {
+            circle.put(hashFunction.hash(token.toString()),
+                    token);
     }
 
-    public void remove(T node){
-        for (int i = 0; i < numberOfReplicas; i++) {
-            circle.remove(hashFunction.hash(node.toString() + i));
-        }
+    public void remove(T token){
+            circle.remove(hashFunction.hash(token.toString()));
     }
 
     public T get(String key) {

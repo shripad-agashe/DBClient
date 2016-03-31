@@ -31,11 +31,11 @@ public class DBClient {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         DBClient client = new DBClient(ApplicationFactory.getRPCClient());
-//        client.put("nn","ddd");
-//        client.put("nn2","ssss");
-//        client.put("nn3","C");
-//        client.put("qq","SDSDSDSD");
-//        client.put("qq1","C");
+        client.put("nn","ddd");
+        client.put("nn2","ssss");
+        client.put("nn3","C");
+        client.put("qq","SDSDSDSD");
+        client.put("qq1","C");
         System.out.println(client.get("qq"));
     }
 }

@@ -7,24 +7,26 @@ import common.DBOperation;
 import common.DBOperationResponse;
 import common.RemoteDBNode;
 import partioning.ConsistentHash;
+import partioning.Token;
 
 import java.io.IOException;
 import java.net.Socket;
 
 public class RPCClient {
 
-    private ConsistentHash<RemoteDBNode> consistentHash;
+    private ConsistentHash<Token> consistentHash;
 
-    public RPCClient(ConsistentHash<RemoteDBNode> consistentHash) {
+    public RPCClient(ConsistentHash<Token> consistentHash) {
         this.consistentHash = consistentHash;
     }
 
     public <T extends DBOperation> DBOperationResponse doNetworkRpc(T dbOperation) throws IOException {
 
-        RemoteDBNode node = consistentHash.get(dbOperation.getKey());
-        System.out.println("######### " + node.getPort());
+        Token token = consistentHash.get(dbOperation.getKey());
+        System.out.println("######### " + token.getPosition());
 
-        Socket socket = new Socket(node.getHost(),node.getPort());
+        RemoteDBNode firstNode = token.getNodes().iterator().next();
+        Socket socket = new Socket(firstNode.getHost(),firstNode.getPort());
         Kryo kryo = new Kryo();
         Output output = new Output(socket.getOutputStream());
 

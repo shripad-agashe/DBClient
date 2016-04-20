@@ -1,15 +1,13 @@
 package partioning;
 
 
-import java.util.Collection;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 
 public class ConsistentHash<T> {
 
     private final HashFunction hashFunction;
-    private final SortedMap<Integer, T> circle =
+    private final TreeMap<Integer, T> circle =
             new TreeMap<Integer, T>();
 
     public ConsistentHash(HashFunction hashFunction,
@@ -27,8 +25,8 @@ public class ConsistentHash<T> {
                     token);
     }
 
-    public void remove(T token){
-            circle.remove(hashFunction.hash(token.toString()));
+    public void remove(T node){
+            circle.remove(hashFunction.hash(node.toString()));
     }
 
     public T get(String key) {
@@ -41,7 +39,12 @@ public class ConsistentHash<T> {
                     circle.tailMap(hash);
             hash = tailMap.isEmpty() ?
                     circle.firstKey() : tailMap.firstKey();
+
         }
+
+        Map.Entry<Integer, T> nextEntry = circle.ceilingEntry(hash);
+        nextEntry.getValue();
+
         return circle.get(hash);
     }
 

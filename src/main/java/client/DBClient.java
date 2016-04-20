@@ -34,8 +34,14 @@ public class DBClient {
         client.put("nn","ddd");
         client.put("nn2","ssss");
         client.put("nn3","C");
-        client.put("qq","SDSDSDSD");
+        client.put("qq","GGGGGGGG");
         client.put("qq1","C");
         System.out.println(client.get("qq"));
+
+        System.out.println("#################################");
+
+        System.out.println(new DBClient(ApplicationFactory.simpleRPCClient("192.168.99.100",9999)).get("qq"));
+        System.out.println(new DBClient(ApplicationFactory.simpleRPCClient("192.168.99.100",9998)).get("qq"));
+        System.out.println(new DBClient(ApplicationFactory.simpleRPCClient("192.168.99.100",9997)).get("qq"));
     }
 }

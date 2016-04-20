@@ -25,13 +25,25 @@ public class ApplicationFactory {
         int regions = conf.getInt("config.num_regions");
         List<Token> tokens = new ArrayList<Token>();
         for(int i=0; i <regions; i++){
+            RemoteDBNode primaryNode = nodes.get(i);
+            int secondaryToekn = (i + 1 == regions) ? 0 : i + 1;
+            RemoteDBNode secondaryNode = nodes.get(secondaryToekn);
             Token token = new Token(Integer.toString(i));
-            token.setNodes(nodes);
+            System.out.println(primaryNode + " ######### " + secondaryNode);
+            token.setNodes(Arrays.asList(primaryNode, secondaryNode));
             tokens.add(token);
         }
 
         return tokens;
 
+    }
+
+    public static RPCClient simpleRPCClient(String host, int port) {
+        Token token = new Token("1");
+        token.setNodes(Arrays.asList(new RemoteDBNode(host,port)));
+
+        ConsistentHash<Token> remoteTokeHash = new ConsistentHash<Token>(new HashFunction(), Arrays.asList(token));
+        return new RPCClient(remoteTokeHash);
     }
 
 

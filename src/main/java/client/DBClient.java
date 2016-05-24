@@ -7,7 +7,6 @@ import factory.ApplicationFactory;
 import rpc.RPCClient;
 
 import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
 
 public class DBClient {
 
@@ -29,24 +28,8 @@ public class DBClient {
 
       return  dbOperationResponse.getResponse();
     }
-    private static void doSome(){
-        CompletableFuture<String> future = new CompletableFuture<>();
-        CompletableFuture<String> stringFuture = CompletableFuture.supplyAsync( () -> {
-            System.out.println("Blah"); return "sdsd";});
-        CompletableFuture<String> intFuture = CompletableFuture.supplyAsync( () -> "10");
-        CompletableFuture<String> stringCompletableFuture = stringFuture.thenCombine(intFuture, (x, y) -> x + " " + y);
-//        Function<String, CompletableFuture<String>> o = new Function<String, CompletableFuture<String>>() {
-//
-//            @Override
-//            public CompletableFuture<String> apply(String s) {
-//                return intFuture;
-//            }
-//        };
-//        CompletableFuture<String> complete = stringFuture.thenCompose(o);
-//        System.out.println(complete.getNow("NADA"));
-//        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(intFuture, stringFuture).then;
-//        voidCompletableFuture.isDone();
-    }
+
+
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         DBClient client = new DBClient(ApplicationFactory.getRPCClient());
@@ -63,7 +46,6 @@ public class DBClient {
         System.out.println(new DBClient(ApplicationFactory.simpleRPCClient("localhost",9999)).get("qq"));
         System.out.println(new DBClient(ApplicationFactory.simpleRPCClient("localhost",9998)).get("qq"));
         System.out.println(new DBClient(ApplicationFactory.simpleRPCClient("localhost",9997)).get("qq"));
-//    doSome();
 
     }
 }

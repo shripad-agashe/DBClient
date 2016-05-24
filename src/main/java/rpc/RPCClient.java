@@ -11,10 +11,7 @@ import partioning.Token;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.RecursiveTask;
 import java.util.function.BiFunction;
 
 public class RPCClient {
@@ -25,14 +22,14 @@ public class RPCClient {
         this.consistentHash = consistentHash;
     }
 
+
     public <T extends DBOperation> DBOperationResponse doNetworkRpc(T dbOperation) throws IOException {
+           return doNetworkRpc(dbOperation,2);
+    }
+    public <T extends DBOperation> DBOperationResponse doNetworkRpc(T dbOperation,int replication) throws IOException {
 
         Token token = consistentHash.get(dbOperation.getKey());
-//        System.out.println("######### " + token.getPosition());
-
-        List<CompletableFuture<DBOperationResponse>> response = new ArrayList<CompletableFuture<DBOperationResponse>>();
-
-        int replication = 0;
+        int replicationCounter = 0;
 
         CompletableFuture<String> future = new CompletableFuture<>();
         future.complete("Done");
@@ -46,18 +43,14 @@ public class RPCClient {
         };
 
         for(RemoteDBNode dbNode:token.getNodes()){
-            if(replication == 1) {
+            if(replicationCounter == replication) {
                 break;
             }
-//            RPCTask rpcTask = new RPCTask(dbNode, dbOperation);
-//            ForkJoinTask<DBOperationResponse> fork = rpcTask.fork();
-//            response.add(fork);
-            CompletableFuture<DBOperationResponse> dbResponseFuture = new RPCFuture().getDBResponseFuture(dbNode, dbOperation);
+            CompletableFuture<DBOperationResponse> dbResponseFuture = getDBResponseFuture(dbNode, dbOperation);
             dbResponseFuture.exceptionally(ex -> {
                 System.out.println("We have problem: " + ex.getMessage());
                 return new DBOperationResponse("Exception");
             });
-//            response.add(dbResponseFuture);
 
 
             CompletableFuture<String> completableFuture = future.thenCombineAsync(dbResponseFuture, bi);
@@ -67,9 +60,7 @@ public class RPCClient {
 
         }
         String resp = "";
-//        future.complete("Done");
         while (!future.isDone()) {
-//            System.out.println("In loop");
             if (future.isDone()) {
                 resp = future.getNow("False");
                 System.out.println("Done with future");
@@ -77,51 +68,19 @@ public class RPCClient {
             }
         }
 
-//
-//        Stream<DBOperationResponse> dbOperationResponseStream = response.stream().map( future -> {
-//            try {
-//                return future(new DBOperationResponse("NA"));
-//            } catch (Exception e) {
-//                return new DBOperationResponse("Error");
-//            }
-//        });
-
-//        List<DBOperationResponse> collect = dbOperationResponseStream.collect(Collectors.toList());
-
-
         System.out.println("Returning response:" + resp);
         return new DBOperationResponse(resp);
     }
 
-    private class RPCFuture {
-        public CompletableFuture<DBOperationResponse> getDBResponseFuture(RemoteDBNode node, DBOperation operation){
-            return CompletableFuture.supplyAsync(() -> {
-                DBOperationResponse dbOperationResponse = getDbOperationResponse(node, operation);
-                System.out.println("In RPC Future");
-                return dbOperationResponse; }
-            );
-        }
+
+    private CompletableFuture<DBOperationResponse> getDBResponseFuture(RemoteDBNode node, DBOperation operation){
+        return CompletableFuture.supplyAsync(() -> {
+            DBOperationResponse dbOperationResponse = getDbOperationResponse(node, operation);
+            System.out.println("In RPC Future");
+            return dbOperationResponse; }
+        );
     }
 
-    private class RPCTask extends RecursiveTask<DBOperationResponse>{
-
-        private final RemoteDBNode dbNode;
-        private DBOperation operation;
-
-        public RPCTask(RemoteDBNode dbNode, DBOperation operation){
-            this.dbNode = dbNode;
-            this.operation = operation;
-        }
-
-
-
-        @Override
-        protected DBOperationResponse compute() {
-            return getDbOperationResponse(dbNode,operation);
-        }
-
-
-    };
 
     private DBOperationResponse getDbOperationResponse(RemoteDBNode dbNode, DBOperation operation) {
         System.out.println("In thread:" + dbNode.getPort());
